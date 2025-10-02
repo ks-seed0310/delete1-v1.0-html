@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang=ja>
+<head>
+<meta charset=utf-8>
+</head>
+<body>
+<h1>半角/全角スペース/改行 除去プログラム</h1>
+<button id=startbutton onclick="start()">スタート!</button>
+<br>
+<textarea id="textarea" rows="10" cols="150">ここに文字列を入力</textarea>
+<br>
+<div id=consolearea><h1>初期化/準備完了。ここにログが出ます。</h1></div>
+<br>
+<textarea id="outputarea" rows="10" cols="150" disabled=true>ここに出力されます</textarea>
+
+<script>
+textarea = document.getElementById("textarea")
+outputarea = document.getElementById("outputarea")
+consolearea = document.getElementById("consolearea")
+startbutton = document.getElementById("startbutton")
+
+// sleep 関数（待機用）
+function sleep(ms){
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+// async/await で順番通り実行
+async function start(){
+    if(!confirm("開始していいですか?開始した場合、入力エリアと出力エリアの文字列が消去されます。")){
+        textarea.disabled = false;
+        arealog("cancel");
+        await sleep(2000)
+        arealog("home")
+        return;
+    }
+
+    textarea.disabled = true;
+    startbutton.disabled = true;
+
+    arealog("start");
+    await sleep(2000);           // 2秒待機
+
+    arealog("start_");
+    await sleep(3000);           // 5秒待機
+
+    await runscript();           // runscript 内でさらに待機可能
+}
+
+// runscript も async にして待機を管理
+async function runscript(){
+    arealog("run");
+    await sleep(1000)
+    outputarea.value = "変換中...変換中...変換中...変換中...変換中...変換中...変換中...変換中...変換中...変換中...変換中...変換中...変換中...変換中...変換中...変換中...変換中...変換中...変換中...変換中...変換中...変換中...変換中...変換中...変換中...変換中...変換中...変換中...変換中...変換中..."
+    await sleep(2000)
+    // 文字列処理
+    textarea_text = textarea.value;
+    textarea_text = textarea_text.replace(/\s/g,"");
+    textarea_text = textarea_text.replace(/\n/g,"");
+    outputarea.value = textarea_text;
+
+    await sleep(3000);           // 3秒待機
+    arealog("runOK");
+    await sleep(2000)
+    arealog("clear1")
+    await sleep(3000);
+    arealog("clear2")
+    await sleep(1000)
+    textarea.value="ここに変換したい文字列を入力"
+    textarea.value="ここに変換したい文字列を入力"
+    await sleep(2000)
+    textarea.value="ここに変換したい文字列を入力"
+    arealog("home")
+    textarea.disabled = false;
+    startbutton.disabled = false;
+}
+
+function arealog(logs){
+    if (logs=="start"){ _html_("変換を承諾しました"); }
+    if (logs=="cancel"){ _html_("変換をキャンセルしました"); }
+    if (logs=="start_"){ _html_("変換開始準備が整いました。開始します..."); }
+    if (logs=="run"){ _html_("現在、変換中..."); }
+    if (logs=="runOK"){ _html_("変換が完了しました!!"); }
+    if (logs=="home"){ _html_("ここにログが出ます")}
+    if (logs=="clear1"){ _html_("3秒後に入力エリアが消去されます")}
+    if (logs=="clear2"){ _html_("入力エリアを消去します...<br>プログラムの初期化中...")}
+}
+
+function _html_(text){
+    consolearea.innerHTML = `<h1>${text}</h1>`;
+}
+</script>
+</body>
+</html>
