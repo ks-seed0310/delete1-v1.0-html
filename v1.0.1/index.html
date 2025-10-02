@@ -2,7 +2,7 @@
 <html lang=ja>
 <head>
 <meta charset=utf-8>
-<title>文字列変換プログラム</title>
+<title>文字列変換プログラム　V1.0.1</title>
 <style>
   #customWrap { display:none; }
   textarea { width: 100%; }
@@ -13,18 +13,19 @@
 <h1>半角/全角スペース/改行 除去プログラム</h1>
 
 <!-- チェックボックス -->
-<label><input type="checkbox" id="removeSpace"> 半角/全角スペースを消す</label>
+<label><input type="checkbox" id="removeHalf"> 半角スペースを消す</label>
+<label><input type="checkbox" id="removeFull"> 全角スペースを消す</label>
 <label><input type="checkbox" id="removeLine"> 改行を消す</label>
 <label><input type="checkbox" id="removeCustom"> カスタム文字を消す</label>
 
 <!-- カスタム文字入力 -->
 <div id="customWrap">
-  <textarea id="customText" rows="2" placeholder=`消したい文字列を改行で入力/例/
-    あ
+  <textarea id="customText" rows="2" placeholder=`あ
     い
     う
     え
-    お　　このようにお願いします!`></textarea>
+    お
+    このように消したい文字列を改行で入力`></textarea>
 </div>
 
 <!-- 入力・出力・ボタン -->
@@ -43,7 +44,8 @@ const outputarea = document.getElementById("outputarea");
 const consolearea = document.getElementById("consolearea");
 const startbutton = document.getElementById("startbutton");
 
-const removeSpace = document.getElementById('removeSpace');
+const removeHalf = document.getElementById('removeHalf');
+const removeFull = document.getElementById('removeFull');
 const removeLine = document.getElementById('removeLine');
 const removeCustom = document.getElementById('removeCustom');
 const customWrap = document.getElementById('customWrap');
@@ -52,40 +54,10 @@ const customText = document.getElementById('customText');
 // sleep 関数
 function sleep(ms){ return new Promise(resolve => setTimeout(resolve, ms)); }
 
-// チェックボックスでカスタム文字入力表示/非表示
+// カスタム文字チェックボックスで textarea 表示/非表示
 removeCustom.addEventListener('change', () => {
   customWrap.style.display = removeCustom.checked ? 'block' : 'none';
-  saveSettings();
 });
-
-// チェック状態やカスタム文字を保存
-function saveSettings() {
-    localStorage.setItem("removeSpace", removeSpace.checked);
-    localStorage.setItem("removeLine", removeLine.checked);
-    localStorage.setItem("removeCustom", removeCustom.checked);
-    localStorage.setItem("customText", customText.value);
-}
-
-// ページ読み込み時に設定を復元
-function loadSettings() {
-    if(localStorage.getItem("removeSpace") !== null)
-        removeSpace.checked = localStorage.getItem("removeSpace") === "true";
-    if(localStorage.getItem("removeLine") !== null)
-        removeLine.checked = localStorage.getItem("removeLine") === "true";
-    if(localStorage.getItem("removeCustom") !== null)
-        removeCustom.checked = localStorage.getItem("removeCustom") === "true";
-    if(localStorage.getItem("customText") !== null)
-        customText.value = localStorage.getItem("customText");
-
-    // カスタム文字用 textarea の表示/非表示
-    customWrap.style.display = removeCustom.checked ? 'block' : 'none';
-}
-loadSettings();
-
-// チェックボックスやカスタム文字が変わったら保存
-removeSpace.addEventListener("change", saveSettings);
-removeLine.addEventListener("change", saveSettings);
-customText.addEventListener("input", saveSettings);
 
 // メイン処理
 async function start(){
@@ -101,24 +73,22 @@ async function start(){
     startbutton.disabled = true;
 
     arealog("start");
-    await sleep(2000);
-
-    arealog("start_");
-    await sleep(3000);
+    await sleep(1000);
 
     await runscript();
 }
 
 async function runscript(){
     arealog("run");
-    await sleep(1000)
+    await sleep(500)
     outputarea.value = "変換中..."
-    await sleep(2000)
+    await sleep(500)
 
     let textValue = textarea.value;
 
     // チェック状態に応じた処理
-    if(removeSpace.checked) textValue = textValue.replace(/\s/g,"");
+    if(removeHalf.checked) textValue = textValue.replace(/ /g,"");
+    if(removeFull.checked) textValue = textValue.replace(/　/g,"");
     if(removeLine.checked) textValue = textValue.replace(/\n/g,"");
     if(removeCustom.checked){
         const list = customText.value.split("\n").filter(s=>s);
@@ -130,16 +100,8 @@ async function runscript(){
 
     outputarea.value = textValue;
 
-    await sleep(3000);
+    await sleep(500);
     arealog("runOK");
-    await sleep(2000);
-    arealog("clear1");
-    await sleep(3000);
-    arealog("clear2");
-    await sleep(1000);
-    textarea.value="ここに変換したい文字列を入力";
-    await sleep(2000);
-    arealog("home");
     textarea.disabled = false;
     startbutton.disabled = false;
 }
@@ -148,12 +110,9 @@ async function runscript(){
 function arealog(logs){
     if (logs=="start"){ _html_("変換を承諾しました"); }
     if (logs=="cancel"){ _html_("変換をキャンセルしました"); }
-    if (logs=="start_"){ _html_("変換開始準備が整いました。開始します..."); }
     if (logs=="run"){ _html_("現在、変換中..."); }
     if (logs=="runOK"){ _html_("変換が完了しました!!"); }
-    if (logs=="home"){ _html_("ここにログが出ます")}
-    if (logs=="clear1"){ _html_("3秒後に入力エリアが消去されます")}
-    if (logs=="clear2"){ _html_("入力エリアを消去します...<br>プログラムの初期化中...")}
+    if (logs=="home"){ _html_("ここにログが出ます");}
 }
 
 function _html_(text){
