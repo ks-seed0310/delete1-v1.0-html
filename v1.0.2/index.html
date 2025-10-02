@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang=ja>
+<head>
+<meta charset=utf-8>
+</head>
+<body>
+<h1>半角/全角スペース/改行 除去プログラム（リアルタイム版）</h1>
+
+<label><input type="checkbox" id="removeHalf"> 半角スペースを消す</label>
+<label><input type="checkbox" id="removeFull"> 全角スペースを消す</label>
+<label><input type="checkbox" id="removeLine"> 改行を消す</label>
+<label><input type="checkbox" id="removeCustom"> カスタム文字を消す</label>
+
+<div id="customWrap" style="display:none;">
+  <textarea id="customText" rows="2" cols="50" placeholder="消したい文字列を改行で入力"></textarea>
+</div>
+
+<textarea id="textarea" rows="10" cols="150">ここに文字列を入力</textarea>
+<br>
+<div id="consolearea"><h1>初期化/準備完了。ここにログが出ます。</h1></div>
+<br>
+<textarea id="outputarea" rows="10" cols="150" disabled=true>ここに出力されます</textarea>
+
+<script>
+const textarea = document.getElementById("textarea");
+const outputarea = document.getElementById("outputarea");
+const consolearea = document.getElementById("consolearea");
+
+const removeHalf = document.getElementById("removeHalf");
+const removeFull = document.getElementById("removeFull");
+const removeLine = document.getElementById("removeLine");
+const removeCustom = document.getElementById("removeCustom");
+const customWrap = document.getElementById("customWrap");
+const customText = document.getElementById("customText");
+
+// カスタム文字チェックボックスで textarea 表示/非表示
+removeCustom.addEventListener('change', ()=> {
+    customWrap.style.display = removeCustom.checked ? 'block' : 'none';
+    runscript();
+})
+
+// リアルタイム変換：入力やチェック状態が変わったら実行
+textarea.addEventListener('input', runscript);
+removeHalf.addEventListener('change', runscript);
+removeFull.addEventListener('change', runscript);
+removeLine.addEventListener('change', runscript);
+customText.addEventListener('input', runscript);
+
+// 変換処理
+function runscript(){
+    // 実行中はチェックボックスとカスタム textarea を無効化
+    removeHalf.disabled = true;
+    removeFull.disabled = true;
+    removeLine.disabled = true;
+    removeCustom.disabled = true;
+    customText.disabled = true;
+
+    let textValue = textarea.value;
+
+    if(removeHalf.checked) textValue = textValue.replace(/ /g,"");
+    if(removeFull.checked) textValue = textValue.replace(/　/g,"");
+    if(removeLine.checked) textValue = textValue.replace(/\n/g,"");
+    if(removeCustom.checked){
+        const list = customText.value.split("\n").filter(s=>s);
+        list.forEach(str=>{
+            const re = new RegExp(str,"g");
+            textValue = textValue.replace(re,"");
+        });
+    }
+
+    outputarea.value = textValue;
+    consolearea.innerHTML = `<h1>変換済み</h1>`;
+
+    // 処理が終わったら再び有効化
+    removeHalf.disabled = false;
+    removeFull.disabled = false;
+    removeLine.disabled = false;
+    removeCustom.disabled = false;
+    customText.disabled = false;
+}
+</script>
+</body>
+</html>
