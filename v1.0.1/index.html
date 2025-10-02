@@ -16,13 +16,13 @@ textarea { width: 100%; margin-top:5px; }
 <label><input type="checkbox" id="removeHalf"> 半角スペースを消す</label>
 <label><input type="checkbox" id="removeFull"> 全角スペースを消す</label>
 <label><input type="checkbox" id="removeLine"> 改行を消す</label>
-<label><input type="checkbox" id="removeCustom"> カスタム文字を消す</label>
-<div id="customWrap">
-  <textarea id="customText" rows="2" placeholder="消したい文字列を改行で入力"></textarea>
-</div>
 <label><input type="checkbox" id="removeDigits"> 数字を消す</label>
 <label><input type="checkbox" id="removeLetters"> 英字を消す</label>
 <label><input type="checkbox" id="removeSymbols"> 記号を消す</label>
+<label><input type="checkbox" id="removeCustom"> カスタム文字を消す</label>
+<div id="customWrap">
+  <textarea id="customText" rows="10" placeholder="消したい文字列を改行で入力"></textarea>
+</div>
 
 <button id="startbutton">スタート!</button>
 <br>
@@ -61,7 +61,7 @@ function sleep(ms){ return new Promise(resolve=>setTimeout(resolve, ms)); }
 startbutton.addEventListener('click', start);
 
 async function start(){
-    if(!confirm("開始していいですか? 入力エリアと出力エリアが消去されます。")){
+    if(!confirm("開始していいですか? 開始した場合、入力エリアと出力エリアが消去されます。")){
         arealog("cancel");
         await sleep(2000);
         arealog("home");
