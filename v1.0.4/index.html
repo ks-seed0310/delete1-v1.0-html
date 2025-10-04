@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <style>
+    body{
+      background:#fafafa;
+      color:#222;
+      font-family: system-ui, -apple-system, "Segoe UI", "Hiragino Kaku Gothic ProN", "Hiragino Sans", "Noto Sans JP", sans-serif;
+      margin:0;
+      min-height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:20px;
+    }
+    .container{
+      max-width:760px;
+      width:100%;
+      background:#fff;
+      border-radius:10px;
+      padding:28px;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.06);
+    }
+    h1{
+      margin:0 0 8px 0;
+      font-size:20px;
+      color:#d93025; /* 赤みのタイトル（ブラウザ風） */
+    }
+    .subtitle{
+      color:#555;
+      font-size:13px;
+      margin-bottom:18px;
+    }
+    .box{
+      border:1px solid #e6e6e6;
+      border-radius:8px;
+      padding:16px;
+      background:#fbfbfb;
+      white-space:pre-wrap;      /* 改行をそのまま表示 */
+      font-family: "Courier New", monospace;
+      font-size:14px;
+      color:#111;
+      min-height:140px;
+      line-height:1.6;
+    }
+    .foot{
+      margin-top:12px;
+      color:#666;
+      font-size:13px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container" role="main" aria-labelledby="title">
+    <h1 id="title">こちらのページ([delete1 v1.0] ver.1.0.3)は開発中です</h1>
+    <div class="subtitle">開発中...　　　テスト開発公開予定日は10/15~10/30以降です。</div>
+
+    <div id="display" class="box" aria-live="polite">error</div>
+
+    <div class="foot"><h3>現在、開発中...</h3><br>開発中...お待ち下さい...<br>10/15~10/30以降に初期開発公開の予定です...</div>
+  </div>
+
+<script>
+(async function(){
+  // --- ここを書き換えれば表示内容を変更できます ---
+  const url =document.URL;
+  const message = `アクセス先: ${url}
+現在、開発中です...
+現在、開発中です...
+10/15~10/30以降に初期開発データ公開の予定です...
+お待ち下さい...
+
+It is under development.
+
+開発中.......................................
+`
+  // 表示速度や間の時間を調整したければここを変えてね
+  const typingSpeedURL = 50;    // URLを1文字表示するのにかけるms
+  const typingSpeedMsg = 70;    // メッセージを1文字表示するのにかけるms
+  const pauseAfterURL = 1000;    // URL完成 → 置換開始までの待ち時間（ms）
+  const showMessageDuration = 2500; // メッセージ表示時間（ms）
+  const pauseBeforeRestart = 300;   // 再スタート前のちょっとした余裕（ms）
+  // ---------------------------------------------------------
+
+  const display = document.getElementById('display');
+
+  // sleep ヘルパー
+  function sleep(ms){ return new Promise(resolve => setTimeout(resolve, ms)); }
+
+  // element に text を1文字ずつタイプする（完了したらresolve）
+  async function typeText(element, text, speed){
+    element.textContent = ''; // 上書き
+    for (let i = 0; i < text.length; i++){
+      element.textContent += text[i];
+      await sleep(speed);
+    }
+  }
+
+  // 無限ループで実行（ページを閉じるまで動く）
+  while(true){
+    // 1) URLを1文字ずつ表示
+    await typeText(display, url, typingSpeedURL);
+
+    // 少し待ってから日本語メッセージに置き換え（＝消してメッセージを1文字ずつ表示）
+    await sleep(pauseAfterURL);
+    await typeText(display, message, typingSpeedMsg);
+
+    // 完全に表示したまま5秒待ち、その後また最初から
+    await sleep(showMessageDuration + pauseBeforeRestart);
+  }
+
+})();
+</script>
+
+</body>
+</html>
+
