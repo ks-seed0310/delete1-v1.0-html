@@ -30,8 +30,10 @@ function start(){
   alert("実行完了!!")
 }
 function runscript(){
-  outputarea.value=textarea.replace("/\n/g","")
-  outputarea.value=textarea.replace("/\s/g","")
+  textarea_text=textarea.value
+  textarea_text=textarea_text.replace("/\n/g","")
+  textarea_text=textarea_text.replace("/\s/g","")
+  outputarea=textarea_text;
 }
 </script>
 </body>
