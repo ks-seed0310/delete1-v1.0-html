@@ -1,1 +1,213 @@
+<!doctype html>
+<html lang=ja>
+<head>
+<meta charset=utf-8>
+<title>リアルタイム文字・記号除去（全UI文字サイズ変更対応）</title>
+<style>
+#customWrap { display:none; margin-top:5px; }
+textarea { width: 100%; height: 220px; margin-top:5px; box-sizing: border-box; }
+#consolearea h1 { font-size: 1.2em; }
+#sizeControls { margin-top:10px; margin-bottom:10px; }
+label { margin-right: 8px; }
+</style>
+</head>
+<body>
 
+<h1>リアルタイム文字・記号除去 完全版</h1>
+<h2>最新のバージョンにアップデートするにはCtrl+F5またはCtrl+Shift+Rを押してください</h2>
+
+<!-- 文字サイズ変更 UI -->
+<div id="sizeControls">
+  <label for="presetSize">文字サイズ:</label>
+  <select id="presetSize">
+    <option value="40">とても小さい (40%)</option>
+    <option value="70">小さい (70%)</option>
+    <option value="100" selected>普通 (100%)</option>
+    <option value="140">少し大きい (140%)</option>
+    <option value="200">大きい (200%)</option>
+    <option value="300">とても大きい (300%)</option>
+    <option value="500">超大 (500%)</option>
+    <option value="custom">自分で設定</option>
+  </select>
+
+  <span id="customInputArea" style="display:none; margin-left:10px;">
+    <input id="customSizeInput" type="number" min="0" max="1000" step="1" style="width:80px;">%
+    <button id="applyBtn" disabled>決定</button>
+  </span>
+</div>
+
+<!-- 削除対象チェックボックス -->
+<div id="checkboxWrap">
+  <label><input type="checkbox" id="removeHalf"> 半角スペースを消す</label>
+  <label><input type="checkbox" id="removeFull"> 全角スペースを消す</label>
+  <label><input type="checkbox" id="removeLine"> 改行を消す</label>
+  <label><input type="checkbox" id="removeDigits"> 数字を消す</label>
+  <label><input type="checkbox" id="removeLetters"> 英字を消す</label>
+  <label><input type="checkbox" id="removeSymbols"> 記号を消す</label>
+  <label><input type="checkbox" id="removeCustom"> カスタム文字を消す</label>
+</div>
+
+<div id="customWrap">
+  <textarea id="customText" rows="10" placeholder="消したい文字列を改行で入力"></textarea>
+</div>
+
+<textarea id="textarea" rows="10" placeholder="ここに文字を入力しよう!編集されて一番下に出てくるよ!"></textarea>
+<br>
+<div id="consolearea"><h1>初期化/準備完了。ここにログが出ます。</h1></div>
+<br>
+<textarea id="outputarea" rows="10" disabled>ここに出力されます</textarea>
+
+<script>
+// ============================
+// 文字列処理関連
+// ============================
+const textarea = document.getElementById("textarea");
+const outputarea = document.getElementById("outputarea");
+const consolearea = document.getElementById("consolearea");
+
+const removeHalf = document.getElementById("removeHalf");
+const removeFull = document.getElementById("removeFull");
+const removeLine = document.getElementById("removeLine");
+const removeCustom = document.getElementById("removeCustom");
+const customWrap = document.getElementById("customWrap");
+const customText = document.getElementById("customText");
+const removeDigits = document.getElementById("removeDigits");
+const removeLetters = document.getElementById("removeLetters");
+const removeSymbols = document.getElementById("removeSymbols");
+
+// カスタム文字チェックボックスで textarea 表示/非表示
+removeCustom.addEventListener('change', ()=> {
+    customWrap.style.display = removeCustom.checked ? 'block' : 'none';
+    runscript();
+});
+
+// 入力やチェック変更でリアルタイム実行
+textarea.addEventListener('input', runscript);
+removeHalf.addEventListener('change', runscript);
+removeFull.addEventListener('change', runscript);
+removeLine.addEventListener('change', runscript);
+removeCustom.addEventListener('change', runscript);
+customText.addEventListener('input', runscript);
+removeDigits.addEventListener('change', runscript);
+removeLetters.addEventListener('change', runscript);
+removeSymbols.addEventListener('change', runscript);
+
+// 変換処理
+function runscript(){
+    let text = textarea.value;
+
+    if(removeHalf.checked) text = text.replace(/ /g,"");
+    if(removeFull.checked) text = text.replace(/　/g,"");
+    if(removeLine.checked) text = text.replace(/\n/g,"");
+    if(removeCustom.checked){
+        const list = customText.value.split("\n").filter(s=>s);
+        list.forEach(str=>{
+            const re = new RegExp(str,"g");
+            text = text.replace(re,"");
+        });
+    }
+    if(removeDigits.checked) text = text.replace(/[0-9]/g,"");
+    if(removeLetters.checked) text = text.replace(/[a-zA-Z]/g,"");
+    if(removeSymbols.checked) text = text.replace(/[`~!@#$%^&*()\-\_=+\[\]{}\\|;:'",<.>\/?¥]/g,"");
+
+    outputarea.value = text;
+    setTimeout(()=>{
+        consolearea.innerHTML = "<h1>変換済み</h1>";
+    },0)
+    setTimeout(()=>{
+        consolearea.innerHTML = "<h1>文字を入力してね!!</h1>"
+    },2000)
+}
+
+// ============================
+// 文字サイズ変更関連（全UI対応）
+// ============================
+const select = document.getElementById("presetSize");
+const customArea = document.getElementById("customInputArea");
+const customInput = document.getElementById("customSizeInput");
+const applyBtn = document.getElementById("applyBtn");
+
+const basePx = 16; // 100% = 16px
+const presets = ["40","70","100","140","200","300","500"];
+
+// 対象となるすべての要素
+const uiElements = [
+  textarea, outputarea, consolearea,
+  ...document.querySelectorAll("#sizeControls select, #sizeControls button"),
+  ...document.querySelectorAll("#checkboxWrap label"),
+  customText, customInput
+];
+
+// % → px
+function percentToPx(p){ return (parseFloat(p)/100)*basePx; }
+// px → %
+function pxToPercent(px){ return Math.round((px/basePx)*1000)/10; }
+
+// UIにフォントサイズ反映
+function applyFontSize(px){
+  uiElements.forEach(el => { 
+    el.style.fontSize = px + "px";
+
+    if(el.tagName === "INPUT" || el.tagName === "TEXTAREA"){
+      el.style.lineHeight = (px * 1.2) + "px";
+      el.style.padding = (px/4) + "px " + (px/3) + "px";
+    }
+
+    // inputのみ横幅を文字サイズに応じて変更
+    if(el.tagName === "INPUT"){
+      const baseWidth = 80; // 元の幅
+      el.style.width = (baseWidth * px / 16) + "px";
+
+      const maxWidth = 600;
+      if(parseFloat(el.style.width) > maxWidth) el.style.width = maxWidth + "px";
+    }
+  });
+}
+
+
+// select変更
+select.addEventListener("change", ()=>{
+  const val = select.value;
+  if(val==="custom"){
+    const curPx = parseFloat(window.getComputedStyle(textarea).fontSize);
+    customInput.value = pxToPercent(curPx);
+    customArea.style.display = "inline-block";
+    updateApplyButton();
+  } else {
+    applyFontSize(percentToPx(val));
+    customArea.style.display = "none";
+  }
+});
+
+// 決定ボタン
+applyBtn.addEventListener("click", ()=>{
+  let v = parseFloat(customInput.value);
+  if(isNaN(v) || v<1 || v>1000) return;
+  applyFontSize(percentToPx(v));
+
+  const match = presets.find(p=>Math.abs(parseFloat(p)-v)<0.1);
+  if(match!==undefined){
+    select.value = match;
+    customArea.style.display = "none";
+  } else {
+    select.value = "custom";
+    customArea.style.display = "inline-block";
+  }
+
+  updateApplyButton();
+});
+
+// 入力変更で決定ボタン制御
+customInput.addEventListener("input", updateApplyButton);
+function updateApplyButton(){
+  const val = parseFloat(customInput.value);
+  const curPx = parseFloat(window.getComputedStyle(textarea).fontSize);
+  const curPercent = pxToPercent(curPx);
+  applyBtn.disabled = !( !isNaN(val) && val>=0 && val<=1000 && Math.abs(val-curPercent)>0.1 );
+}
+
+// 初期値セット
+applyFontSize(percentToPx(100));
+</script>
+</body>
+</html>
