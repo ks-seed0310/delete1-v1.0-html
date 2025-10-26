@@ -1,2 +1,38 @@
-<!--まだ書かないよ〜？-->
-<h1>まだ書かないよ！</h1>
+<!doctype html>
+<html lang=ja>
+<head>
+<meta charset=utf-8>
+</head>
+<body>
+<h1>半角/全角スペース/改行 除去プログラム</h1>
+<button id=startbutton onclick="start()">スタート!</button>
+<br>
+<textarea id="textarea" rows="10" cols="150">ここに文字列を入力</textarea>
+<br>
+<div id=consolearea><h1>初期化/準備完了。ここにログが出ます。</h1></div>
+<br>
+<textarea id="outputarea" rows="10" cols="150" disabled=true>ここに出力されます</textarea>
+<script>
+alert("ようこそ!v0.0.0へ!")
+alert("V1.0.0では、当時適当に作ったしょぼいプログラムがあります。")
+alert("ぜひ使ってみてくださいね!!")
+textarea = document.getElementById("textarea")
+outputarea = document.getElementById("outputarea")
+consolearea = document.getElementById("consolearea")
+startbutton = document.getElementById("startbutton")
+
+function start(){
+  if(!confirm("開始していいですか?")){return;}
+  alert("実行中...")
+  consolearea.innerHTML="<h1>実行中</h1>"
+  runscript()
+  consolearea.innerHTML="<h1>実行完了</h1>"
+  alert("実行完了!!")
+}
+function runscript(){
+  outputarea.value=textarea.replace("/\n/g","")
+  outputarea.value=textarea.replace("/\s/g","")
+}
+</script>
+</body>
+</html>
