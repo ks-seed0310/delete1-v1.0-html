@@ -31,8 +31,8 @@ function start(){
 }
 function runscript(){
   textarea_text=textarea.value
-  textarea_text=textarea_text.replace(/\n/g, "")
-  textarea_text=textarea_text.replace(/\s/g, "")
+  textarea_text=textarea_text.replaceAll(/\n/g, "")
+  textarea_text=textarea_text.replaceAll(/\s/g, "")
   outputarea.value=textarea_text;
 }
 </script>
