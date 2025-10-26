@@ -31,8 +31,7 @@ function start(){
 }
 function runscript(){
   textarea_text=textarea.value
-  textarea_text=textarea_text.replace("/\n/g","")
-  textarea_text=textarea_text.replace("/\s/g","")
+  textarea_text=textarea_text.split("\n").join("").split("　").join("").split( ).join("")
   outputarea=textarea_text;
 }
 </script>
